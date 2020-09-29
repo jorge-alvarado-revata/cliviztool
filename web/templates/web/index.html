@@ -1,0 +1,254 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+ 
+    <title> Vista de graficos </title>
+ 
+  	  {# Cargamos la librería #}
+   {% load bootstrap4 %}
+ 
+   {# CSS Bootstrap #}
+   {% bootstrap_css %}
+    {% load static %}
+   <link href="{% static "web/dashboard.css" %}" rel="stylesheet">
+   
+
+  </head>
+
+  <body>
+    {# JS y jQuery Bootstrap #}
+    {% bootstrap_javascript jquery='full' %}
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">ACM/IEEE Tool</a>        
+        <ul class="navbar-nav px-3">
+          <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#">Salir</a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="container-fluid">
+        
+
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+              <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="#">
+                      <span data-feather="home"></span>
+                      Dashboard <span class="sr-only">(current)</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="https://viztool2020.herokuapp.com/admin/">
+                      <span data-feather="file"></span>
+                      Administración
+                    </a>
+                  </li>
+                  
+                  
+                </ul>
+                
+              </div>
+            </nav>
+    
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+              <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">VizTool ACM/IEEE</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                                   
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Programas
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="ProgramasU">
+                        </div>
+                    </div>
+
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Escuelas
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="Programas">
+                    {% for k,v in programas.items %}
+                      <a class="dropdown-item" href="http://localhost:5000/apicmp/programa/{{k}}/">{{ v }}</a>        
+                    {% endfor %}
+                    </div>
+                </div>
+                </div>
+              </div>
+    
+              <canvas class="my-4" id="myChart" width="900" height="600"></canvas>
+    
+              <h2>Radial</h2>
+              <div class="table-responsive">
+                
+                <canvas class="my-4" id="myRadial" width="900" height="600"></canvas>
+
+              </div>
+            </main>
+          </div>
+        </div>
+    
+      </div>
+
+     <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Programas
+        </button>
+        <div class="dropdown-menu" aria-labelledby="Programas">
+        {% for k,v in programas.items %}
+          <a class="dropdown-item" href="http://localhost:5000/apicmp/programa/{{k}}">{{ v }}</a>        
+        {% endfor %}
+        </div>
+    </div>
+
+
+   <div>
+    
+    
+   </div>
+
+   <script>window.jQuery || document.write('<script src="{% static "web/assets/jquery-slim.min.js" %}"><\/script>')</script>
+   <script src="{% static "web/assets/popper.min.js" %}"></script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace()
+    </script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+   <script>
+
+    function getProgramName(id) {
+        var programas = {
+            {% for k,v in programas.items %}
+            '{{k}}': '{{v}}',
+            {% endfor %}
+        }
+        return programas[id]
+    }
+
+    function getColor(id){
+        var colores = {
+            {% for k,v in colores.items %}
+            '{{k}}': '{{v}}',
+            {% endfor %}
+        }
+
+        return colores[id];
+    }
+
+    function getLabels(){
+        var labels = [
+        {% for k,v in  areas.items %}
+            '{{k}}- {{v.0}} {{v.1}}',
+            {% endfor %}
+        ]
+        return labels
+    }
+
+
+    function getDatasets() {
+        datasets = [
+            {%for k,v in  pesos.items  %}
+            {
+                data: [
+                    {% for t,z in v.items %}
+                    {{z.0}},
+                    {% endfor %}
+                ],
+                label : getProgramName('{{k}}')+'-min',
+                borderColor: getColor('{{k}}'),
+                fill: '-1',
+            },
+            {
+                data: [
+                    {% for t,z in v.items %}
+                    {{z.1}},
+                    {% endfor %}
+                ],
+                label : getProgramName('{{k}}')+'-max',
+                borderColor: getColor('{{k}}'),
+                fill: '-1',
+            },
+            {% endfor %}
+        ];
+        return datasets;
+    }
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+    new Chart(ctx, {
+    type: 'line',            
+    data: {
+        labels : getLabels(),
+        
+
+        datasets: getDatasets(),
+
+    },
+    options: {
+        plugins: {
+            filler: {
+                propagate: true
+            }
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 90,
+                    beginAtZero: true,
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+</script>
+
+<script>
+
+var ctx2 = document.getElementById('myRadial');
+
+var chart = new Chart(ctx2, {
+  type: 'radar',
+  data: {
+    labels: getLabels(),
+    datasets: getDatasets(),
+  },
+  options: {
+    scales: {
+
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        },
+    title: {
+      display: true,
+      fontSize: 18,
+      position: 'bottom',
+      text: 'Programas y pesos min-max'
+    },
+    legend: {
+      position: 'bottom'
+    }
+  }
+});
+
+</script>
+
+   </body>
+ </html>
