@@ -1,0 +1,1 @@
+web: gunicorn cliviztool.wsgi --log-file -

@@ -94,19 +94,17 @@
                       </div>
                     </div>
                   </form>
-        
-            </main>
-            <div class="table-responsive">
-            <canvas class="my-4" id="myChart" width="900" height="600"></canvas>
-    
-            </div>
-            <div class="table-responsive">
-                <h2>Radial</h2> 
-              <canvas class="my-4" id="myRadial" width="900" height="600"></canvas>
-
-            </div>
-            </div>
+                  <div class="table-responsive">
+                    <h2>Relative Weights-Lines</h2> 
+                    <canvas class="my-4" id="myChart" width="900" height="600"></canvas>            
+                </div>
+                <div class="table-responsive">
+                    <h2>Relative Weights-Radial</h2> 
+                  <canvas class="my-4" id="myRadial" width="900" height="600"></canvas>    
+                </div>
+            </main>            
         </div>
+    </div>
 </body>
 <script>window.jQuery || document.write('<script src="{% static "web/assets/jquery-slim.min.js" %}"><\/script>')</script>
 <script src="{% static "web/assets/popper.min.js" %}"></script>
@@ -263,118 +261,74 @@ function removeData(chart) {
     chart.update();
 }
 
-function getDatasets() {
-        datasets = [
-            
-            {
-                data: [
-                    
-                    2,
-                    
-                    1,
-                    
-                    2,
-                    
-                    1,
-                    
-                    1,
-                    
-                    1,
-                    
-                    1,
-                    
-                    1,
-                    
-                    1,
-                    
-                ],
-                label : getProgramName('1')+'-min',
-                borderColor: getColor('1'),
-                fill: '-1',
-            },
-            {
-                data: [
-                    
-                    5,
-                    
-                    3,
-                    
-                    3,
-                    
-                    2,
-                    
-                    3,
-                    
-                    3,
-                    
-                    3,
-                    
-                    2,
-                    
-                    2,
-                    
-                ],
-                label : getProgramName('1')+'-max',
-                borderColor: getColor('1'),
-                fill: '-1',
-            },
-            
-            {
-                data: [
-                    
-                    2,
-                    
-                    2,
-                    
-                    2,
-                    
-                    1,
-                    
-                    1,
-                    
-                    3,
-                    
-                    1,
-                    
-                    1,
-                    
-                    2,
-                    
-                ],
-                label : getProgramName('2')+'-min',
-                borderColor: getColor('2'),
-                fill: '-1',
-            },
-            {
-                data: [
-                    
-                    4,
-                    
-                    3,
-                    
-                    3,
-                    
-                    2,
-                    
-                    3,
-                    
-                    5,
-                    
-                    3,
-                    
-                    3,
-                    
-                    4,
-                    
-                ],
-                label : getProgramName('2')+'-max',
-                borderColor: getColor('2'),
-                fill: '-1',
-            },
-            
-        ];
-        return datasets;
+
+function gxLine() {
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+    var myChartD = new Chart(ctx, {
+    type: 'line',            
+    data: {
+        labels : getLabels(),
+        datasets: [{
+            data: [],
+            }],
+
+    },
+    options: {
+        plugins: {
+            filler: {
+                propagate: true
+            }
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 90,
+                    beginAtZero: true,
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
     }
+    });
+}
+
+function gxRadial() {
+    var ctx2 = document.getElementById('myRadial');
+
+    var chart = new Chart(ctx2, {
+    type: 'radar',
+    data: {
+        labels: getLabels(),
+        datasets: [],
+    },
+    options: {
+        scales: {
+
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+        title: {
+        display: true,
+        fontSize: 18,
+        position: 'bottom',
+        text: 'Programas y pesos min-max'
+        },
+        legend: {
+        position: 'bottom'
+        }
+    }
+    });
+}
 
 $(document).ready(function(){
     dictComputing = getAllProgram();
@@ -389,6 +343,8 @@ $(document).ready(function(){
         $('#selectacademy').append($('<option></option>').val(`ap${key}`).html(value));    
     }
 
+    gxLine();
+    gxRadial();
 
 });
 
@@ -420,15 +376,116 @@ $('#clearfunction').click(function () {
 );
 
 $('#drawfunction').click(function () {
+    local_dataset = [];
     $('#selectfunciones option').each( function(index, element) {
         //console.log(index);
         // por cada elemento obtener los 2 primeros caracteres y luego obtener
-        // los arreglos y armar las figuras
-        console.log(element.value);
-        console.log(element.text)
-    }
+        // los arreglos y armar las figuras        
+        
+        idName = element.value.substring(0,2);
+        idVal = element.value.substring(2)
+        if (idName === 'cc') {
+            dictdata = {}
+            data = getPesosByPrograma(idVal+'a');
+            dictdata['data'] = data;
+            dictdata['label'] = getProgramName(idVal)+'-min';
+            dictdata['borderColor'] = getColor(idVal);
+            dictdata['fill'] = '-1';
+            // agregar al dataset
+            local_dataset.push(dictdata);
+            dictdata = {}
+            data = getPesosByPrograma(idVal+'b');
+            dictdata['data'] = data;
+            dictdata['label'] = getProgramName(idVal)+'-max';
+            dictdata['borderColor'] = getColor(idVal);
+            dictdata['fill'] = '-1';
+            local_dataset.push(dictdata);
+        }
+        else if (idName === 'ap') {
+            dictdata = {}
+            data = getPesosUByPrograma(idVal+'a');
+            dictdata['data'] = data;
+            dictdata['label'] = getProgramUName(idVal)+'-min';
+            dictdata['borderColor'] = getColorU(idVal);
+            dictdata['fill'] = '-1';
+            // agregar al dataset
+            local_dataset.push(dictdata);
+            dictdata = {}
+            data = getPesosUByPrograma(idVal+'b');
+            dictdata['data'] = data;
+            dictdata['label'] = getProgramUName(idVal)+'-max';
+            dictdata['borderColor'] = getColorU(idVal);
+            dictdata['fill'] = '-1';
+            local_dataset.push(dictdata);
 
-    .M);
+        }        
+    });
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+    var myChartD = new Chart(ctx, {
+    type: 'line',            
+    data: {
+        labels : getLabels(),
+        datasets: local_dataset,
+
+    },
+    options: {
+        plugins: {
+            filler: {
+                propagate: true
+            }
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 90,
+                    beginAtZero: true,
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+    });
+    myChartD.update();
+
+    //var ctx2 = document.getElementById('myRadial');
+
+    var ctx2 = document.getElementById('myRadial');
+
+    var chart = new Chart(ctx2, {
+    type: 'radar',
+    data: {
+        labels: getLabels(),
+        datasets: local_dataset,
+    },
+    options: {
+        scales: {
+
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+        title: {
+        display: true,
+        fontSize: 18,
+        position: 'bottom',
+        text: 'Programas y pesos min-max'
+        },
+        legend: {
+        position: 'bottom'
+        }
+    }
+    });
+    chart.update();
 }
 
 );

@@ -5,11 +5,11 @@ import random
 host_prod = 'https://viztool2020.herokuapp.com'
 host_dev = 'http://localhost:8095'
 
-host = host_dev
+host = host_prod
 
 def html_color():
     return "#" + "%06x" % random.randint(0, 0xFFFFFF)
-
+"""
 def index(request):
 
     # carga de datos de los programas
@@ -73,8 +73,8 @@ def index(request):
     
 
     return render(request, 'web/index.html', context)
-
-def form1(request):
+"""
+def index(request):
 
     # carga de programas de universidad
     http = urllib3.PoolManager()
