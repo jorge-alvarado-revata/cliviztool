@@ -120,7 +120,7 @@
 function getLabels(){
         var labels = [
         {% for k,v in  areas.items %}
-            '{{k}}- {{v.0}} {{v.1}}',
+            '{{v.0}} {{v.1}}',
             {% endfor %}
         ]
         return labels
