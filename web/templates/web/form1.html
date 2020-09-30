@@ -245,27 +245,11 @@ function getColorU(id){
         return coloresu[id];
 }
 
-function addData(chart, label, data) {
-    chart.data.labels.push(label);
-    chart.data.datasets.forEach((dataset) => {
-        dataset.data.push(data);
-    });
-    chart.update();
-}
-
-function removeData(chart) {
-    chart.data.labels.pop();
-    chart.data.datasets.forEach((dataset) => {
-        dataset.data.pop();
-    });
-    chart.update();
-}
-
 
 function gxLine() {
     var ctx = document.getElementById('myChart').getContext('2d');
 
-    var myChartD = new Chart(ctx, {
+    window.myChartL = new Chart(ctx, {
     type: 'line',            
     data: {
         labels : getLabels(),
@@ -302,7 +286,7 @@ function gxLine() {
 function gxRadial() {
     var ctx2 = document.getElementById('myRadial');
 
-    var chart = new Chart(ctx2, {
+    window.myChartR = new Chart(ctx2, {
     type: 'radar',
     data: {
         labels: getLabels(),
@@ -422,8 +406,11 @@ $('#drawfunction').click(function () {
     });
 
     var ctx = document.getElementById('myChart').getContext('2d');
+    if (window.myChartL instanceof Chart) {
+        window.myChartL.destroy();
+    }
 
-    var myChartD = new Chart(ctx, {
+    window.myChartL = new Chart(ctx, {
     type: 'line',            
     data: {
         labels : getLabels(),
@@ -453,13 +440,13 @@ $('#drawfunction').click(function () {
         }
     }
     });
-    myChartD.update();
-
-    //var ctx2 = document.getElementById('myRadial');
+    myChartL.update();
 
     var ctx2 = document.getElementById('myRadial');
-
-    var chart = new Chart(ctx2, {
+    if (window.myChartR instanceof Chart) {
+        window.myChartR.destroy();
+    }
+    window.MyChartR = new Chart(ctx2, {
     type: 'radar',
     data: {
         labels: getLabels(),
@@ -485,7 +472,7 @@ $('#drawfunction').click(function () {
         }
     }
     });
-    chart.update();
+    MyChartR.update();
 }
 
 );

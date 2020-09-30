@@ -19,6 +19,7 @@ def index(request):
     data_json = response.data.decode('utf-8')
     data = json.loads(data_json)
 
+
     programas = {}
     colores = {}
     pesos = {}
